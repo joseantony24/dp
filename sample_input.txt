@@ -1,0 +1,71 @@
+Combination 9 - Team 9 - Part 2 - Set 5 - ONLY MANDATORY MATCH found, Team 10 - Part 2 - Set 5 - ONLY MANDATORY MATCH found : Total Teams - 2
+A3-WK
+A5-WK
+B1-WK
+B4-WK
+
+A2-BAT
+B2-BAT
+
+A8-ALL
+B3-ALL
+B5-ALL
+
+A11-BOWL
+A9-BOWL
+Combination : 4-2-3-2
+Ratio: 6-5
+==================================================
+Combination 10 - Team 11 - Part 2 - Set 17 - ONLY MANDATORY MATCH found, Team 12 - Part 2 - Set 17 - ONLY MANDATORY MATCH found : Total Teams - 2
+A3-WK
+B1-WK
+
+A1-BAT
+A2-BAT
+B2-BAT
+
+A6-ALL
+A8-ALL
+B3-ALL
+B5-ALL
+
+A11-BOWL
+A9-BOWL
+Combination : 2-3-4-2
+Ratio: 7-4
+==================================================
+Combination 11 - Team 13 - Part 2 - Set 92 - ONLY MANDATORY MATCH found, Team 14 - Part 2 - Set 92 - ONLY MANDATORY MATCH found : Total Teams - 2
+A3-WK
+B1-WK
+
+A2-BAT
+B2-BAT
+B9-BAT
+
+A8-ALL
+B3-ALL
+B5-ALL
+B6-ALL
+
+A11-BOWL
+A9-BOWL
+Combination : 2-3-4-2
+Ratio: 5-6
+==================================================
+Combination 12 - Team 15 - Part 2 - Set 293 - ONLY MANDATORY MATCH found, Team 16 - Part 2 - Set 293 - ONLY MANDATORY MATCH found : Total Teams - 2
+A3-WK
+B1-WK
+B4-WK
+
+A2-BAT
+B2-BAT
+
+A8-ALL
+B3-ALL
+B5-ALL
+
+A10-BOWL
+A11-BOWL
+A9-BOWL
+Combination : 3-2-3-3
+Ratio: 6-5
