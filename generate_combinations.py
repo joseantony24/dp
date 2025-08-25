@@ -116,9 +116,8 @@ def render_combination_image(
     top_margin = 40
     title_y = top_margin
     legend_top = title_y + 120
-    header_top = legend_top + 140
+    sections_top = legend_top + 140
     side_padding = 28
-    inter_col = 24
     footer_height = 80
 
     # Title (centered) — only "Combination N"
@@ -136,50 +135,56 @@ def render_combination_image(
     draw.rectangle([legend_x + 200, legend_top + 54, legend_x + 200 + 56, legend_top + 54 + 36], fill=(0, 0, 0))
     draw.text((legend_x + 200 + 66, legend_top + 50), "Team Y", font=small_font, fill=(255, 255, 255))
 
-    # Columns
-    num_cols = len(ROLE_ORDER)
-    col_width = (CANVAS_WIDTH - side_padding * 2 - inter_col * (num_cols - 1)) // num_cols
-    col_x = [side_padding + i * (col_width + inter_col) for i in range(num_cols)]
+    # Sectioned layout: for each role, draw heading then chips that wrap horizontally
+    y_cursor = sections_top
+    usable_width = CANVAS_WIDTH - side_padding * 2
+    chip_w, chip_h = 260, 66
+    gap_x, gap_y = 18, 22
 
-    # Headers with boxes
-    header_height = 70
-    for idx, role in enumerate(ROLE_ORDER):
-        x = col_x[idx]
-        header_label = {"WK": "WICKET KEEPERS", "BAT": "BATSMEN", "ALL": "ALL ROUNDERS", "BOWL": "BOWLERS"}[role]
-        draw.rectangle([x, header_top, x + col_width, header_top + header_height], fill=(12, 72, 10), outline=(245, 245, 245), width=3)
-        hw, hh = _text_size(draw, header_label, header_font)
-        draw.text((x + (col_width - hw) // 2, header_top + (header_height - hh) // 2), header_label, font=header_font, fill=(255, 255, 255))
+    def draw_role_section(role_key: str, y: int) -> int:
+        role_label = {"WK": "WICKET KEEPERS", "BAT": "BATSMEN", "ALL": "ALL ROUNDERS", "BOWL": "BOWLERS"}[role_key]
+        # Role heading
+        hw, hh = _text_size(draw, role_label, header_font)
+        draw.text((side_padding, y), role_label, font=header_font, fill=(255, 255, 255))
+        y += hh + 18
 
-    # Player grid region
-    player_top = header_top + header_height + 20
-    player_bottom = CANVAS_HEIGHT - footer_height
-    grid_height = player_bottom - player_top
+        # Wrap chips on one or two rows as needed
+        names = comb.roles.get(role_key, [])
+        if not names:
+            return y + 10
 
-    # Render each column independently so players stack under their correct role
-    min_row_h = 90
-    for col_idx, role in enumerate(ROLE_ORDER):
-        x = col_x[col_idx]
-        names = comb.roles.get(role, [])
-        num_rows = max(1, len(names))
-        row_h = max(min_row_h, grid_height // num_rows)
-
-        for r, name in enumerate(names):
-            y = player_top + r * row_h
-            # Column-local background band
-            draw.rectangle([x, y, x + col_width, y + row_h - 8], fill=(24, 104, 19))
+        # Compute how many chips fit per row
+        per_row = max(1, (usable_width + gap_x) // (chip_w + gap_x))
+        row = 0
+        col = 0
+        for name in names:
+            x = side_padding + col * (chip_w + gap_x)
+            cy = y + row * (chip_h + gap_y)
 
             team_id = team_lookup.get(name.upper(), "x")
-            chip_w, chip_h = 260, 66
-            chip_x = x + 16
-            chip_y = y + (row_h - chip_h) // 2 - 4
             chip_fill = (255, 255, 255) if team_id == "x" else (0, 0, 0)
             chip_outline = (0, 0, 0) if team_id == "x" else (255, 255, 255)
-            draw.rounded_rectangle([chip_x, chip_y, chip_x + chip_w, chip_y + chip_h], radius=12, fill=chip_fill, outline=chip_outline, width=3)
+            draw.rounded_rectangle([x, cy, x + chip_w, cy + chip_h], radius=12, fill=chip_fill, outline=chip_outline, width=3)
 
             text_fill = (0, 0, 0) if team_id == "x" else (255, 255, 255)
-            tw, th = _text_size(draw, name, player_font)
-            draw.text((chip_x + (chip_w - tw) // 2, chip_y + (chip_h - th) // 2 - 2), name, font=player_font, fill=text_fill)
+            tw2, th2 = _text_size(draw, name, player_font)
+            draw.text((x + (chip_w - tw2) // 2, cy + (chip_h - th2) // 2 - 2), name, font=player_font, fill=text_fill)
 
+            col += 1
+            if col >= per_row:
+                col = 0
+                row += 1
+
+        # Advance y past last row of chips
+        y += (row + 1) * (chip_h + gap_y)
+        y += 24  # extra spacing before next section
+        return y
+
+    # Draw each role section stacked vertically
+    for role in ROLE_ORDER:
+        y_cursor = draw_role_section(role, y_cursor)
+
+    player_bottom = y_cursor
     # Footer divider line
     draw.line([(side_padding, player_bottom), (CANVAS_WIDTH - side_padding, player_bottom)], fill=(255, 255, 255), width=3)
 
