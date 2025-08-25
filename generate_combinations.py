@@ -154,42 +154,45 @@ def render_combination_image(
     player_top = header_top + header_height + 20
     player_bottom = CANVAS_HEIGHT - footer_height
     grid_height = player_bottom - player_top
-    max_rows = max(len(comb.roles.get(role, [])) for role in ROLE_ORDER)
-    max_rows = max(max_rows, 1)
 
-    # Row height with minimum for legibility
-    row_height = max(90, grid_height // max_rows)
+    # Render each column independently so players stack under their correct role
+    min_row_h = 90
+    for col_idx, role in enumerate(ROLE_ORDER):
+        x = col_x[col_idx]
+        names = comb.roles.get(role, [])
+        num_rows = max(1, len(names))
+        row_h = max(min_row_h, grid_height // num_rows)
 
-    # Player cells
-    for row in range(max_rows):
-        y = player_top + row * row_height
-        for col_idx, role in enumerate(ROLE_ORDER):
-            x = col_x[col_idx]
-            names = comb.roles.get(role, [])
-            name = names[row] if row < len(names) else ""
-
-            # Draw cell background band
-            draw.rectangle([x, y, x + col_width, y + row_height - 8], fill=(24, 104, 19))
-
-            if not name:
-                continue
+        for r, name in enumerate(names):
+            y = player_top + r * row_h
+            # Column-local background band
+            draw.rectangle([x, y, x + col_width, y + row_h - 8], fill=(24, 104, 19))
 
             team_id = team_lookup.get(name.upper(), "x")
-            # Team-based chip: white background for X, black for Y
-            chip_w, chip_h = 220, 66
+            chip_w, chip_h = 260, 66
             chip_x = x + 16
-            chip_y = y + (row_height - chip_h) // 2 - 4
+            chip_y = y + (row_h - chip_h) // 2 - 4
             chip_fill = (255, 255, 255) if team_id == "x" else (0, 0, 0)
             chip_outline = (0, 0, 0) if team_id == "x" else (255, 255, 255)
             draw.rounded_rectangle([chip_x, chip_y, chip_x + chip_w, chip_y + chip_h], radius=12, fill=chip_fill, outline=chip_outline, width=3)
 
-            # Player text on chip
             text_fill = (0, 0, 0) if team_id == "x" else (255, 255, 255)
             tw, th = _text_size(draw, name, player_font)
             draw.text((chip_x + (chip_w - tw) // 2, chip_y + (chip_h - th) // 2 - 2), name, font=player_font, fill=text_fill)
 
     # Footer divider line
     draw.line([(side_padding, player_bottom), (CANVAS_WIDTH - side_padding, player_bottom)], fill=(255, 255, 255), width=3)
+
+    # Footer information: Combination pattern and optional ratio
+    footer_text = []
+    if comb.formation:
+        footer_text.append(f"Combination : {comb.formation}")
+    if comb.ratio:
+        footer_text.append(f"Ratio : {comb.ratio}")
+    info = "  |  ".join(footer_text)
+    if info:
+        iw, ih = _text_size(draw, info, small_font)
+        draw.text(((CANVAS_WIDTH - iw) // 2, player_bottom + (footer_height - ih) // 2), info, font=small_font, fill=(255, 255, 255))
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     img.save(out_path)
